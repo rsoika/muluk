@@ -1,2 +1,3 @@
-# muluk-mon
-Muluk is a WebService Monitor
+# Muluk-Monintor
+
+Muluk is a super simple WebService Monitor. 
