@@ -1,13 +1,10 @@
 package org.imixs.muluk;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
 
 import org.imixs.muluk.xml.XMLCluster;
 import org.imixs.muluk.xml.XMLConfig;
@@ -34,7 +31,8 @@ public class TestReadXMLConfig {
 	public void testRead() {
 		XMLConfig conf = null;
 
-		try {
+		try { 
+			// load test data
 			conf = readCollectionFromInputStream(getClass().getResourceAsStream("/config.xml"));
 		} catch (JAXBException e) {
 			Assert.fail();
@@ -46,19 +44,19 @@ public class TestReadXMLConfig {
 
 		XMLCluster cluster = conf.getCluster();
 		Assert.assertNotNull(cluster);
-		
-		Assert.assertEquals("sepp",cluster.getName());
+
+		Assert.assertEquals("sepp", cluster.getName());
 
 		Assert.assertTrue(cluster.getNode().length == 1);
 		// test values
-		
+
 		XMLMonitor objects = conf.getMonitor();
 		Assert.assertNotNull(objects);
 		Assert.assertTrue(objects.getObject().length == 1);
-		
+
 		XMLObject object = objects.getObject()[0];
-		Assert.assertEquals("web",object.getType());
-		Assert.assertEquals("https://www.imixs.org",object.getTarget());
+		Assert.assertEquals("web", object.getType());
+		Assert.assertEquals("https://www.imixs.org", object.getTarget());
 	}
 
 	/**
@@ -78,21 +76,9 @@ public class TestReadXMLConfig {
 			return null;
 		}
 		byteInput = getBytesFromStream(inputStream);
-		return readCollection(byteInput);
+		return MonitorService.readConfig(byteInput);
 
 	}
-
-//    public static byte[] writeItemCollection(ItemCollection document) throws JAXBException, IOException {
-//        if (document == null) {
-//            return null;
-//        }
-//        XMLDataCollection ecol = XMLDataCollectionAdapter.getDataCollection(document);
-//        StringWriter writer = new StringWriter();
-//        JAXBContext context = JAXBContext.newInstance(XMLDataCollection.class);
-//        Marshaller m = context.createMarshaller();
-//        m.marshal(ecol, writer);
-//        return writer.toString().getBytes();
-//    }
 
 	public static byte[] getBytesFromStream(InputStream is) throws IOException {
 		ByteArrayOutputStream buffer = new ByteArrayOutputStream();
@@ -104,29 +90,6 @@ public class TestReadXMLConfig {
 		buffer.flush();
 		is.close();
 		return buffer.toByteArray();
-	}
-
-	public static XMLConfig readCollection(byte[] byteInput) throws JAXBException, IOException {
-
-		if (byteInput == null || byteInput.length == 0) {
-			return null;
-		}
-
-		XMLConfig ecol = null;
-
-		JAXBContext context = JAXBContext.newInstance(XMLConfig.class);
-		Unmarshaller m = context.createUnmarshaller();
-
-		ByteArrayInputStream input = new ByteArrayInputStream(byteInput);
-		Object jaxbObject = m.unmarshal(input);
-		if (jaxbObject == null) {
-			throw new RuntimeException("readCollection error - wrong xml file format - unable to read content!");
-		}
-
-		ecol = (XMLConfig) jaxbObject;
-
-		return ecol;
-
 	}
 
 }

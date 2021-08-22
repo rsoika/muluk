@@ -28,13 +28,24 @@
 
 package org.imixs.muluk;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.nio.file.AccessDeniedException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Date;
 import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
+import javax.inject.Inject;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
+
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.imixs.muluk.xml.XMLConfig;
 
 /**
  * 
@@ -44,36 +55,83 @@ import javax.ejb.Startup;
 @Startup
 @Singleton
 public class MonitorService {
-    public static String SETUP_OK = "OK";
-    public static String MODEL_INITIALIZED = "MODEL_INITIALIZED";
+	public static String SETUP_OK = "OK";
+	public static String MODEL_INITIALIZED = "MODEL_INITIALIZED";
 
-    private static Logger logger = Logger.getLogger(MonitorService.class.getName());
+	private static Logger logger = Logger.getLogger(MonitorService.class.getName());
 
-    Date started=null;
+	Date started = null;
 
+	@Inject
+	@ConfigProperty(name = "muluk.config.file", defaultValue = "config.xml")
+	String configFile;
 
-    /**
-     * This method start the system setup during deployment
-     * 
-     * @throws AccessDeniedException
-     */
-    @PostConstruct
-    public void startup() {
+	XMLConfig readConfig;
 
-        // created with linux figlet
-        logger.info("   ____      _");
-        logger.info("  /  _/_ _  (_)_ __ ___   Muluk");
-        logger.info(" _/ //  ' \\/ /\\ \\ /(_-<   ");
-        logger.info("/___/_/_/_/_//_\\_\\/___/   V0.0.0");
-        logger.info("");
-        started=new Date(System.currentTimeMillis());
-       
-    }
+	/**
+	 * This method start the system setup during deployment
+	 * 
+	 * @throws AccessDeniedException
+	 */
+	@PostConstruct
+	public void startup() {
+
+		started = new Date(System.currentTimeMillis());
+
+		// created with linux figlet
+		logger.info(" __  __       _       _    ");
+		logger.info("|  \\/  |_   _| |_   _| | __");
+		logger.info("| |\\/| | | | | | | | | |/ /");
+		logger.info("| |  | | |_| | | |_| |   < ");
+		logger.info("|_|  |_|\\__,_|_|\\__,_|_|\\_\\   V0.0.1");
+
+		// load Config from file
+		logger.info("......read configuration...");
+		try {
+			byte[] bytes = Files.readAllBytes(Paths.get(configFile));
+			readConfig = readConfig(bytes);
+		} catch (IOException | JAXBException e) {
+			logger.severe("Failed to read config file: " + e.getMessage());
+		}
+
+		// Finally start optional schedulers
+		if (readConfig!=null) {
+			logger.info("......initalizing jobs...");
+			startAllJobs();
+		}
+
+	}
+
+	private void startAllJobs() {
+		// TODO Auto-generated method stub
+
+	}
 
 	public Date getStarted() {
 		return started;
 	}
 
-	
+	public static XMLConfig readConfig(byte[] byteInput) throws JAXBException, IOException {
+
+		if (byteInput == null || byteInput.length == 0) {
+			return null;
+		}
+
+		XMLConfig ecol = null;
+
+		JAXBContext context = JAXBContext.newInstance(XMLConfig.class);
+		Unmarshaller m = context.createUnmarshaller();
+
+		ByteArrayInputStream input = new ByteArrayInputStream(byteInput);
+		Object jaxbObject = m.unmarshal(input);
+		if (jaxbObject == null) {
+			throw new RuntimeException("readCollection error - wrong xml file format - unable to read content!");
+		}
+
+		ecol = (XMLConfig) jaxbObject;
+
+		return ecol;
+
+	}
 
 }
