@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pageflow:Pageflow xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:pageflow="http://www.sybase.com/suade/pageflow" id="pf16296182396240" configfile="/muluk/src/main/webapp/WEB-INF/faces-config.xml">
+  <nodes xsi:type="pageflow:PFPage" name="*" x="122" y="562" id="pf16296182557841" referenceLink="//@navigationRule.0/@fromViewId|" outlinks="pf16296182557842 pf16296182557843 pf16296182557844" path="*"/>
+  <nodes xsi:type="pageflow:PFPage" name="pages/welcome.xhtml" x="338" y="178" id="pf16296182557845" referenceLink="//@navigationRule.0/@navigationCase.0/@toViewId|" inlinks="pf16296182557842" path="/pages/welcome.xhtml"/>
+  <nodes xsi:type="pageflow:PFPage" name="pages/my_statuslist.xhtml" x="338" y="562" id="pf16296182557856" referenceLink="//@navigationRule.0/@navigationCase.1/@toViewId|" inlinks="pf16296182557843" path="/pages/my_statuslist.xhtml"/>
+  <nodes xsi:type="pageflow:PFPage" name="logout.xhtml" x="338" y="946" id="pf16296182557857" referenceLink="//@navigationRule.0/@navigationCase.2/@toViewId|" inlinks="pf16296182557844" path="/logout.xhtml"/>
+  <links id="pf16296182557842" target="pf16296182557845" source="pf16296182557841" outcome="home" redirect="true"/>
+  <links id="pf16296182557843" target="pf16296182557856" source="pf16296182557841" outcome="tasklist" redirect="true"/>
+  <links id="pf16296182557844" target="pf16296182557857" source="pf16296182557841" outcome="logout" redirect="true"/>
+</pageflow:Pageflow>

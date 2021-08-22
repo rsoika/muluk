@@ -1,0 +1,82 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:i="http://xmlns.jcp.org/jsf/composite/imixs"
+	template="/layout/template.xhtml">
+
+	<ui:define name="content">
+
+
+		<div class="container-box">
+
+			<div class="container-panel" style="xwidth: 30%">
+				<p>Started: #{mulukController.started}</p>
+				<h2 class="green">Up Time: #{mulukController.uptime}</h2>
+			</div>
+
+			<div class="container-panel" style="xwidth: 40%">
+				<p>Watching:</p>
+				<h2>33/35 Up</h2>
+			</div>
+
+			<div class="container-panel" style="xwidth: 30%">
+				<p>Status:</p>
+				<h3 class="green">Availability = 95.3%</h3>
+				<h3 class="red">Total Errors = 0</h3>
+			</div>
+		</div>
+
+
+		<div class="container-box">
+			<h1>Cluster</h1>
+
+			<div class="container-panel" style="xwidth: 30%">
+				<p>Cluster Status:</p>
+				<h2 class="">#{mulukController.getClusterNodes()}/1 Monitors Up</h2>
+			</div>
+			<div class="container-panel" style="xwidth: 30%">
+				<p>Status:</p>
+				<h3 class="green">Availability = 95.3%</h3>
+				<h3 class="red">Total Errors = 0</h3>
+			</div>
+
+			<div class="container-panel" style="">
+				<p>Nodes / Last Ping:</p>
+				<p>
+					100.00.0.05 - 21.Aug. 2021 14:54:00<br /> 100.00.0.05<br />
+					100.00.0.05
+				</p>
+
+			</div>
+		</div>
+
+
+		<div class="container-box">
+			<h1>Objects</h1>
+
+
+			<table id="imixsdatatable" class="imixsdatatable"
+				style="width: 100%;">
+				<thead>
+					<tr>
+						<th>Name</th>
+						<th>Node</th>
+						<th>Last Ping</th>
+						<th>Type</th>
+						<th>Status</th>
+						<th>Workflow Summary</th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody >
+					<tr>
+						
+					</tr>
+				</tbody>
+			</table>
+
+		</div>
+	</ui:define>
+</ui:composition>
