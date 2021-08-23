@@ -16,7 +16,8 @@ public class XMLObject implements java.io.Serializable {
 	@XmlTransient
 	private static final long serialVersionUID = 1L;
 	private String type;
-	private String scheduler;
+	// private String scheduler;
+	private long interval; // in seconds
 
 	private String target;
 	private String result;
@@ -34,15 +35,17 @@ public class XMLObject implements java.io.Serializable {
 		return type;
 	}
 
-	
-	
-	
-	public String getScheduler() {
-		return scheduler;
+	/**
+	 * Timer Interval in seconds
+	 * 
+	 * @return
+	 */
+	public long getInterval() {
+		return interval;
 	}
 
-	public void setScheduler(String scheduler) {
-		this.scheduler = scheduler;
+	public void setInterval(long interval) {
+		this.interval = interval;
 	}
 
 	public String getTarget() {

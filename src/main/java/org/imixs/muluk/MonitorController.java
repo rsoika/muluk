@@ -25,7 +25,9 @@ package org.imixs.muluk;
 
 import java.io.Serializable;
 import java.nio.file.AccessDeniedException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
@@ -33,24 +35,26 @@ import javax.enterprise.context.SessionScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.imixs.muluk.xml.XMLObject;
+
 /**
- * This backing bean provides front end data
+ * This backing bean provides front end data about the MontorService.
  * 
  * @author rsoika
- * 
+ * @version 1.0
  */
 @Named
 @SessionScoped
-public class MulukController implements Serializable {
+public class MonitorController implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private static Logger logger = Logger.getLogger(MulukController.class.getName());
+	private static Logger logger = Logger.getLogger(MonitorController.class.getName());
 
 	@Inject
 	MonitorService monitorService;
 
-	public MulukController() {
+	public MonitorController() {
 		super();
 
 	}
@@ -72,6 +76,15 @@ public class MulukController implements Serializable {
 		return monitorService.getStarted();
 	}
 
+	
+	/**
+	 * Returns the objects.
+	 * @return
+	 */
+	public XMLObject[] getObjects() {
+		return monitorService.getConfig().getMonitor().getObject();
+	}
+	
 	public String getUptime() {
 
 		long different = System.currentTimeMillis() - monitorService.getStarted().getTime();

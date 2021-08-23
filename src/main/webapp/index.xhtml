@@ -12,8 +12,8 @@
 		<div class="container-box">
 
 			<div class="container-panel" style="xwidth: 30%">
-				<p>Started: #{mulukController.started}</p>
-				<h2 class="green">Up Time: #{mulukController.uptime}</h2>
+				<p>Started: #{monitorController.started}</p>
+				<h2 class="green">Up Time: #{monitorController.uptime}</h2>
 			</div>
 
 			<div class="container-panel" style="xwidth: 40%">
@@ -34,7 +34,7 @@
 
 			<div class="container-panel" style="xwidth: 30%">
 				<p>Cluster Status:</p>
-				<h2 class="">#{mulukController.getClusterNodes()}/1 Monitors Up</h2>
+				<h2 class="">#{monitorController.getClusterNodes()}/1 Monitors Up</h2>
 			</div>
 			<div class="container-panel" style="xwidth: 30%">
 				<p>Status:</p>
@@ -55,15 +55,13 @@
 
 		<div class="container-box">
 			<h1>Objects</h1>
-
-
 			<table id="imixsdatatable" class="imixsdatatable"
 				style="width: 100%;">
 				<thead>
 					<tr>
-						<th>Name</th>
-						<th>Node</th>
-						<th>Last Ping</th>
+						<th>Target</th>
+						<th>Type</th>
+						<th>Interval</th>
 						<th>Type</th>
 						<th>Status</th>
 						<th>Workflow Summary</th>
@@ -71,9 +69,16 @@
 					</tr>
 				</thead>
 				<tbody >
-					<tr>
-						
-					</tr>
+					<ui:param name="objects" value="#{monitorController.objects}"></ui:param>
+				
+					<ui:repeat var="obj" value="#{objects}">
+						<tr>
+							<td>#{obj.getTarget()}</td>
+							<td>#{obj.type}</td>
+							<td>#{obj.interval} sec</td>
+								
+						</tr>
+					</ui:repeat>
 				</tbody>
 			</table>
 
