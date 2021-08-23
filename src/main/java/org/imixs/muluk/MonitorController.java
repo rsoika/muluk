@@ -35,6 +35,7 @@ import javax.enterprise.context.SessionScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.imixs.muluk.xml.XMLConfig;
 import org.imixs.muluk.xml.XMLObject;
 
 /**
@@ -75,7 +76,25 @@ public class MonitorController implements Serializable {
 	public Date getStarted() {
 		return monitorService.getStarted();
 	}
+	
+	public double getAvailability() {
+		double pings = getConfig().getPings();
+		double errors = getConfig().getErrors();
+		double total=pings+errors;
+		double result=0;
+		if (total>0) {
+			result=pings/total*100;
+		}
+		return result;
+	}
 
+	/**
+	 * Returns the objects.
+	 * @return
+	 */
+	public XMLConfig getConfig() {
+		return monitorService.getConfig();
+	}
 	
 	/**
 	 * Returns the objects.

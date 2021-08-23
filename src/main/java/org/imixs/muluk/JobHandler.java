@@ -28,9 +28,13 @@
 
 package org.imixs.muluk;
 
+import java.io.IOException;
 import java.nio.file.AccessDeniedException;
 import java.text.ParseException;
+import java.util.Date;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.annotation.Resource;
 import javax.ejb.Singleton;
@@ -39,6 +43,7 @@ import javax.ejb.Timeout;
 import javax.ejb.Timer;
 import javax.ejb.TimerConfig;
 
+import org.imixs.muluk.web.WebClient;
 import org.imixs.muluk.xml.XMLConfig;
 import org.imixs.muluk.xml.XMLObject;
 
@@ -58,11 +63,14 @@ public class JobHandler {
 
 	@Resource
 	javax.ejb.TimerService timerService;
+	
+	private XMLConfig config;
 
 	/**
 	 * This method starts all jobs defined in the current monitor configuration.
 	 */
 	public void startAllJobs(XMLConfig config) {
+		this.config=config;
 		XMLObject[] allObjects = config.getMonitor().getObject();
 		if (allObjects != null) {
 			for (XMLObject obj : allObjects) {
@@ -125,11 +133,50 @@ public class JobHandler {
 		XMLObject object = (XMLObject) timer.getInfo();
 
 		if (object == null) {
-			logger.severe("...failed to load scheduler configuration for current timer. Timer will be stopped...");
+			logger.severe("...invalid object configuration! Timer will be stopped...");
 			timer.cancel();
 			return;
 		}
+		
+		if ( object.getPattern() == null || object.getPattern().isEmpty()) {
+			logger.severe("...invalid object configuration - missing tag 'pattern'...");
+			timer.cancel();
+			return;
+		}
+		
+		
 		logger.info("......executing job - " + object.getTarget());
 
+		String target = object.getTarget();
+		if (target.toLowerCase().startsWith("http")) {
+			try {
+				WebClient webClient = new WebClient();
+				String result = webClient.get(target);
+				//logger.info(result);
+
+				Pattern p = Pattern.compile(object.getPattern()); // the pattern to search for
+				Matcher m = p.matcher(result);
+
+				// now try to find at least one match
+				if (m.find()) {
+					logger.info("......OK");
+					object.setStatus("OK");
+					object.setLastSuccess(new Date());
+					config.addPing();;
+					
+				} else {
+					logger.info("......FAILED - pattern not found!");
+					object.setStatus("FAILED");
+					object.setLastFailure(new Date());
+					config.addErrors();
+				}
+			} catch (IOException e) {
+				logger.severe("FAILED to request target - " + e.getMessage());
+				object.setStatus("FAILED");
+				object.setLastFailure(new Date());
+				config.addErrors();
+			}
+
+		}
 	}
 }

@@ -41,15 +41,17 @@ import javax.xml.bind.annotation.XmlTransient;
 @XmlRootElement(name = "config")
 public class XMLConfig implements java.io.Serializable {
 
-	  @XmlTransient
-	    private static final long serialVersionUID = 1L;
+	@XmlTransient
+	private static final long serialVersionUID = 1L;
 
-    private XMLCluster cluster;
-    private XMLMonitor monitor;
+	private XMLCluster cluster;
+	private XMLMonitor monitor;
+	private long pings = 0;
+	private long errors = 0;
 
-    public XMLConfig() {
-    	super();
-    }
+	public XMLConfig() {
+		super();
+	}
 
 	public XMLCluster getCluster() {
 		return cluster;
@@ -67,8 +69,28 @@ public class XMLConfig implements java.io.Serializable {
 		this.monitor = monitor;
 	}
 
-	
+	public long getPings() {
+		return pings;
+	}
 
-   
+	public void setPings(long pings) {
+		this.pings = pings;
+	}
+
+	public long getErrors() {
+		return errors;
+	}
+
+	public void setErrors(long erros) {
+		this.errors = erros;
+	}
+
+	public void addPing() {
+		pings++;
+	}
+
+	public void addErrors() {
+		errors++;
+	}
 
 }

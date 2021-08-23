@@ -197,8 +197,14 @@ table {
 	font-size: 14px;
 }
 
+table, td, th {
+	border:none;
+    border-bottom: 1px solid #ddd;
+}
 th {
 	font-weight: bold;
+	font-size:1.2em;
+	text-align: left;
 }
 
 .imixsdatatable a {

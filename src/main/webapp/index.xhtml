@@ -23,8 +23,16 @@
 
 			<div class="container-panel" style="xwidth: 30%">
 				<p>Status:</p>
-				<h3 class="green">Availability = 95.3%</h3>
-				<h3 class="red">Total Errors = 0</h3>
+				<h3 class="green">
+					Availability =
+					<h:outputText value="#{monitorController.availability}">
+						<f:convertNumber type="number" groupingUsed="true"
+							minFractionDigits="4" />
+					</h:outputText>
+					%
+				</h3>
+				<h3 class="red">Total Errors =
+					#{monitorController.config.errors}</h3>
 			</div>
 		</div>
 
@@ -34,7 +42,8 @@
 
 			<div class="container-panel" style="xwidth: 30%">
 				<p>Cluster Status:</p>
-				<h2 class="">#{monitorController.getClusterNodes()}/1 Monitors Up</h2>
+				<h2 class="">#{monitorController.getClusterNodes()}/1 Monitors
+					Up</h2>
 			</div>
 			<div class="container-panel" style="xwidth: 30%">
 				<p>Status:</p>
@@ -55,32 +64,39 @@
 
 		<div class="container-box">
 			<h1>Objects</h1>
-			<table id="imixsdatatable" class="imixsdatatable"
-				style="width: 100%;">
-				<thead>
-					<tr>
-						<th>Target</th>
-						<th>Type</th>
-						<th>Interval</th>
-						<th>Type</th>
-						<th>Status</th>
-						<th>Workflow Summary</th>
-						<th></th>
-					</tr>
-				</thead>
-				<tbody >
-					<ui:param name="objects" value="#{monitorController.objects}"></ui:param>
-				
-					<ui:repeat var="obj" value="#{objects}">
+
+			<div class="container-panel" style="width: 100%;">
+				<table id="imixsdatatable" class="imixsdatatable"
+					style="width: 100%;">
+					<thead>
 						<tr>
-							<td>#{obj.getTarget()}</td>
-							<td>#{obj.type}</td>
-							<td>#{obj.interval} sec</td>
-								
+							<th>Target</th>
+							<th>Type</th>
+							<th>Interval</th>
+							<th>Pattern</th>
+							<th>Status</th>
+							<th>Last Success</th>
+							<th>Last Failure</th>
 						</tr>
-					</ui:repeat>
-				</tbody>
-			</table>
+					</thead>
+					<tbody>
+						<ui:param name="objects" value="#{monitorController.objects}"></ui:param>
+
+						<ui:repeat var="obj" value="#{objects}">
+							<tr style="#{'OK' eq obj.status?'':'color:red;'}">
+								<td>#{obj.getTarget()}</td>
+								<td>#{obj.type}</td>
+								<td>#{obj.interval} sec</td>
+								<td>#{obj.getPattern()}</td>
+								<td>#{obj.status}</td>
+								<td>#{obj.lastSuccess}</td>
+								<td>#{obj.lastFailure}</td>
+							</tr>
+						</ui:repeat>
+					</tbody>
+				</table>
+
+			</div>
 
 		</div>
 	</ui:define>
