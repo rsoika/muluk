@@ -69,12 +69,9 @@ body, html {
 
 .container-box {
 	display: flex; /* or inline-flex */
-	 flex-wrap: wrap;
-	 xxxalign-content: space-around;
-	 
-	 min-height:70px;
+	flex-wrap: wrap;
+	min-height: 70px;
 	margin: 10px;
-	xborder-bottom: 2px solid #0e4db0;
 	font-size: 0.85em;
 }
 
@@ -86,24 +83,25 @@ body, html {
 }
 
 .container-panel {
+	min-height: 115px;
 	padding: 10px;
 	background: #f3f3f3;
-	margin: 10px;
-	
-		-webkit-box-shadow: 0 0 5px 0 rgba(43, 43, 43, .1), 0 11px 6px -7px
+	margin: 10px 10px 20px 10px;
+	-webkit-box-shadow: 0 0 5px 0 rgba(43, 43, 43, .1), 0 11px 6px -7px
 		rgba(43, 43, 43, .1);
 	box-shadow: 0 0 5px 0 rgba(43, 43, 43, .1), 0 11px 6px -7px
 		rgba(43, 43, 43, .1);
-		
-		
-			-webkit-transition: all .3s ease-in-out;
+	-webkit-transition: all .3s ease-in-out;
 	transition: all .3s ease-in-out;
 }
 
-
+.container-panel p {
+	font-weight: bold;
+}
 .container-panel h2 {
 	font-weight: bolder;
 }
+
 .container-panel h3 {
 	font-weight: bolder;
 	font-size: 1.33em;
@@ -176,9 +174,6 @@ span.tooltip:hover span.tip {
 	transition: all .3s ease-in-out;
 }
 
-
-
-
 .typcn.error {
 	color: #e83636d9;
 }
@@ -198,12 +193,13 @@ table {
 }
 
 table, td, th {
-	border:none;
-    border-bottom: 1px solid #ddd;
+	border: none;
+	border-bottom: 1px solid #ddd;
 }
+
 th {
 	font-weight: bold;
-	font-size:1.2em;
+	font-size: 1.2em;
 	text-align: left;
 }
 
@@ -232,9 +228,7 @@ th {
 
 /* Responsive */
 @media screen and (max-width: 1200px) {
-	
 }
 
 @media screen and (max-width: 700px) {
-	
 }

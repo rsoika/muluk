@@ -26,35 +26,11 @@
  *      Ralph Soika - Software Developer
  */
 
-package org.imixs.muluk.xml;
+package org.imixs.muluk.web;
 
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
+import java.io.IOException;
+import java.net.HttpURLConnection;
 
-/**
- * The XMLDataCollection represents a list of XMLItemCollections. This root
- * element is used by JAXB api
- * 
- * @author rsoika
- * @version 0.0.1
- */
-@XmlRootElement(name = "cluster")
-public class XMLCluster implements java.io.Serializable {
-
-	@XmlTransient
-	private static final long serialVersionUID = 1L;
-
-	
-	private XMLObject[] node;
-
-	public void setNode(XMLObject[] node) {
-		this.node = node;
-	}
-
-	public XMLObject[] getNode() {
-		return node;
-	}
-
-	
-
+public interface RequestFilter {
+    public void filter(HttpURLConnection connection) throws IOException;
 }

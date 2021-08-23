@@ -76,34 +76,51 @@ public class MonitorController implements Serializable {
 	public Date getStarted() {
 		return monitorService.getStarted();
 	}
-	
+
 	public double getAvailability() {
 		double pings = getConfig().getPings();
 		double errors = getConfig().getErrors();
-		double total=pings+errors;
-		double result=0;
-		if (total>0) {
-			result=pings/total*100;
+		double total = pings + errors;
+		double result = 0;
+		if (total > 0) {
+			result = pings / total * 100;
 		}
 		return result;
 	}
 
 	/**
 	 * Returns the objects.
+	 * 
 	 * @return
 	 */
 	public XMLConfig getConfig() {
 		return monitorService.getConfig();
 	}
-	
+
 	/**
 	 * Returns the objects.
+	 * 
 	 * @return
 	 */
 	public XMLObject[] getObjects() {
 		return monitorService.getConfig().getMonitor().getObject();
 	}
-	
+
+	public int getObjectsTotal() {
+		return monitorService.getConfig().getMonitor().getObject().length;
+	}
+
+	public int getObjectsUp() {
+		int result = 0;
+		XMLObject[] objects = monitorService.getConfig().getMonitor().getObject();
+		for (XMLObject obj : objects) {
+			if ("OK".equals(obj.getStatus())) {
+				result++;
+			}
+		}
+		return result;
+	}
+
 	public String getUptime() {
 
 		long different = System.currentTimeMillis() - monitorService.getStarted().getTime();
@@ -122,15 +139,31 @@ public class MonitorController implements Serializable {
 
 		long elapsedSeconds = different / secondsInMilli;
 
-		String uptime = elapsedDays + " days, " + elapsedHours + " hours, " + elapsedMinutes + " minutes, "
-				+ elapsedSeconds + " seconds";
+		String uptime = "";
+
+		if (elapsedDays > 0) {
+			uptime = uptime + elapsedDays + " days, ";
+		}
+		if (elapsedHours > 0) {
+			uptime = uptime + elapsedHours + " hours, ";
+		}
+
+		if (elapsedMinutes > 0) {
+			uptime = uptime + elapsedMinutes + " minutes, ";
+		}
+
+		uptime = uptime + elapsedSeconds + " seconds";
 
 		return uptime;
 
 	}
 
-	public int getClusterNodes() {
-		return 7;
+	public int getClusterSize() {
+		return monitorService.getConfig().getCluster().getNode().length;
+	}
+
+	public XMLObject[] getClusterNodes() {
+		return monitorService.getConfig().getCluster().getNode();
 	}
 
 }

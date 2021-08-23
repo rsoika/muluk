@@ -46,6 +46,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import org.imixs.muluk.xml.XMLAuth;
+
 /**
  * The WebClient is a helper class for a http communication.
  * 
@@ -53,21 +55,26 @@ import java.util.logging.Logger;
  */
 public class WebClient {
 
-	
 	private Map<String, String> requestProperties = null;
 	private String encoding = "UTF-8";
 	private int iLastHTTPResult = 0;
+	private XMLAuth xmlAuth;
 
 	private final static Logger logger = Logger.getLogger(WebClient.class.getName());
 
-	
 	public WebClient() {
 		super();
-	
 	}
 
-
-
+	/**
+	 * Creates a new Web Client with an optional XMLAuth Object
+	 * 
+	 * @param xmlAuth
+	 */
+	public WebClient(XMLAuth xmlAuth) {
+		super();
+		this.xmlAuth = xmlAuth;
+	}
 
 	public String getEncoding() {
 		return encoding;
@@ -76,7 +83,6 @@ public class WebClient {
 	public void setEncoding(String aEncoding) {
 		encoding = aEncoding;
 	}
-
 
 	/**
 	 * Set a single header request property
@@ -103,7 +109,7 @@ public class WebClient {
 	 * 
 	 * @param uri - Rest Endpoint RUI
 	 * @return - content or null if no content is available.
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public String get(String uri) throws IOException {
 
@@ -122,10 +128,30 @@ public class WebClient {
 			}
 		}
 
-		// process filters....
-//            for (RequestFilter filter : requestFilterList) {
-//                filter.filter(urlConnection);
-//            }
+		if (xmlAuth != null) {
+			RequestFilter authFilter = null;
+			if ("BASIC".equalsIgnoreCase(xmlAuth.getType())) {
+				authFilter = new BasicAuthenticator(xmlAuth.getUser(), xmlAuth.getPassword());
+			}
+			if ("FORM".equalsIgnoreCase(xmlAuth.getType())) {
+				// compute base url
+				String baseURL=uri;
+				//String path=urlConnection.getURL().getPath();
+				String host=urlConnection.getURL().getHost();
+				baseURL=baseURL.substring(0,baseURL.indexOf(host)+host.length());
+				
+				logger.info("form based auth - base URI="+baseURL);
+				
+				authFilter = new FormAuthenticator(baseURL,xmlAuth.getUser(), xmlAuth.getPassword());
+			}
+			if ("JWT".equalsIgnoreCase(xmlAuth.getType())) {
+				authFilter = new JWTAuthenticator( xmlAuth.getPassword());
+			}
+
+			if (authFilter != null) {
+				authFilter.filter(urlConnection);
+			}
+		}
 
 		iLastHTTPResult = urlConnection.getResponseCode();
 		logger.finest("......Sending 'GET' request to URL : " + uri);

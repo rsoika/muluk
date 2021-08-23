@@ -44,6 +44,7 @@ import javax.ejb.Timer;
 import javax.ejb.TimerConfig;
 
 import org.imixs.muluk.web.WebClient;
+import org.imixs.muluk.xml.XMLAuth;
 import org.imixs.muluk.xml.XMLConfig;
 import org.imixs.muluk.xml.XMLObject;
 
@@ -150,7 +151,7 @@ public class JobHandler {
 		String target = object.getTarget();
 		if (target.toLowerCase().startsWith("http")) {
 			try {
-				WebClient webClient = new WebClient();
+				WebClient webClient = new WebClient(object.getAuth());
 				String result = webClient.get(target);
 				//logger.info(result);
 

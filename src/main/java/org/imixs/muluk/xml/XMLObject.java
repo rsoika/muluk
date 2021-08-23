@@ -26,6 +26,9 @@ public class XMLObject implements java.io.Serializable {
 	private String status;
 	private Date lastSuccess;
 	private Date lastFailure;
+	
+	private XMLAuth auth; // optional
+	
 	public XMLObject() {
 		super();
 	}
@@ -44,6 +47,7 @@ public class XMLObject implements java.io.Serializable {
 	 * 
 	 * @return
 	 */
+	@XmlAttribute
 	public long getInterval() {
 		return interval;
 	}
@@ -93,5 +97,15 @@ public class XMLObject implements java.io.Serializable {
 	public void setLastFailure(Date lastFailure) {
 		this.lastFailure = lastFailure;
 	}
+
+	public XMLAuth getAuth() {
+		return auth;
+	}
+
+	public void setAuth(XMLAuth auth) {
+		this.auth = auth;
+	}
+	
+	
 
 }

@@ -26,35 +26,38 @@
  *      Ralph Soika - Software Developer
  */
 
-package org.imixs.muluk.xml;
+package org.imixs.muluk.web;
 
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.logging.Logger;
 
 /**
- * The XMLDataCollection represents a list of XMLItemCollections. This root
- * element is used by JAXB api
+ * Client request Filter for Imixs-JWT
  * 
  * @author rsoika
- * @version 0.0.1
+ *
  */
-@XmlRootElement(name = "cluster")
-public class XMLCluster implements java.io.Serializable {
+public class JWTAuthenticator implements RequestFilter {
 
-	@XmlTransient
-	private static final long serialVersionUID = 1L;
+    private final String jwt;
+    private final static Logger logger = Logger.getLogger(JWTAuthenticator.class.getName());
 
-	
-	private XMLObject[] node;
+    public JWTAuthenticator(String jwt) {
+        this.jwt = jwt;
+    }
 
-	public void setNode(XMLObject[] node) {
-		this.node = node;
-	}
+    public void filter(HttpURLConnection connection) throws IOException {
 
-	public XMLObject[] getNode() {
-		return node;
-	}
+        URL uri = connection.getURL();// .getUri();
 
-	
+        String url = uri.toString();
+        if (!url.contains("jwt=")) {
+            logger.info("adding JSON Web Token...");
+            connection.setRequestProperty("jwt", jwt);
+        }
+
+    }
 
 }
