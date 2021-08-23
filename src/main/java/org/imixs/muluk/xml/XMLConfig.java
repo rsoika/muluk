@@ -46,6 +46,7 @@ public class XMLConfig implements java.io.Serializable {
 
 	private XMLCluster cluster;
 	private XMLMonitor monitor;
+	private XMLMail mail;
 	private long pings = 0;
 	private long errors = 0;
 
@@ -67,6 +68,15 @@ public class XMLConfig implements java.io.Serializable {
 
 	public void setMonitor(XMLMonitor monitor) {
 		this.monitor = monitor;
+	}
+
+	
+	public XMLMail getMail() {
+		return mail;
+	}
+
+	public void setMail(XMLMail mail) {
+		this.mail = mail;
 	}
 
 	public long getPings() {

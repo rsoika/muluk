@@ -42,6 +42,7 @@ import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.ejb.Timer;
 import javax.inject.Inject;
+import javax.mail.MessagingException;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
@@ -72,6 +73,8 @@ public class MonitorService {
 
 	@Inject
 	JobHandler jobHandler;
+	
+	@Inject LogService logService;
 
 	@Inject
 	@ConfigProperty(name = "muluk.config.file", defaultValue = "config.xml")
@@ -90,24 +93,24 @@ public class MonitorService {
 		started = new Date(System.currentTimeMillis());
 
 		// created with linux figlet
-		logger.info(" __  __       _       _    ");
-		logger.info("|  \\/  |_   _| |_   _| | __");
-		logger.info("| |\\/| | | | | | | | | |/ /");
-		logger.info("| |  | | |_| | | |_| |   < ");
-		logger.info("|_|  |_|\\__,_|_|\\__,_|_|\\_\\   V0.0.1");
+		logService.info(" __  __       _       _    ");
+		logService.info("|  \\/  |_   _| |_   _| | __");
+		logService.info("| |\\/| | | | | | | | | |/ /");
+		logService.info("| |  | | |_| | | |_| |   < ");
+		logService.info("|_|  |_|\\__,_|_|\\__,_|_|\\_\\   V0.0.1");
 
 		// load Config from file
-		logger.info("......read configuration...");
+		logService.info("......read configuration...");
 		try {
 			byte[] bytes = Files.readAllBytes(Paths.get(configFile));
 			config = readConfig(bytes);
 		} catch (IOException | JAXBException e) {
-			logger.severe("Failed to read config file: " + e.getMessage());
+			logService.severe("Failed to read config file: " + e.getMessage());
 		}
 
 		// cancel all timers...
 		for (Object obj : timerService.getTimers()) {
-			logger.warning("... cancel existing timer - should not happen!");
+			logService.warning("... cancel existing timer - should not happen!");
 			Timer timer = (javax.ejb.Timer) obj;
 			if (timer != null) {
 				XMLObject object = (XMLObject) timer.getInfo();
@@ -118,8 +121,16 @@ public class MonitorService {
 		// Finally start optional schedulers
 		if (config != null) {
 
-			logger.info("......initalizing jobs...");
+			logService.info("......initalizing jobs...");
 			jobHandler.startAllJobs(config);
+		}
+		
+		
+		try {
+			logService.sendMessageLog("Muluk Monitor started", config.getMail());
+		} catch (MessagingException e) {
+			logger.severe("Failed to send mail: " + e.getMessage());
+			e.printStackTrace();
 		}
 
 	}

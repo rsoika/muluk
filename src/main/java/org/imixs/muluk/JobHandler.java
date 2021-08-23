@@ -42,6 +42,7 @@ import javax.ejb.Startup;
 import javax.ejb.Timeout;
 import javax.ejb.Timer;
 import javax.ejb.TimerConfig;
+import javax.inject.Inject;
 
 import org.imixs.muluk.web.WebClient;
 import org.imixs.muluk.xml.XMLAuth;
@@ -60,7 +61,7 @@ public class JobHandler {
 	public static int DEFAULT_INTERVAL = 60;
 	public static int INITIAL_DELAY = 10000;
 
-	private static Logger logger = Logger.getLogger(JobHandler.class.getName());
+	@Inject LogService logService;
 
 	@Resource
 	javax.ejb.TimerService timerService;
@@ -78,7 +79,7 @@ public class JobHandler {
 				try {
 					startJob(obj);
 				} catch (AccessDeniedException | ParseException e) {
-					logger.severe("Failed to start job: " + e.getMessage());
+					logService.severe("Failed to start job: " + e.getMessage());
 					e.printStackTrace();
 				}
 			}
@@ -99,7 +100,7 @@ public class JobHandler {
 		if (object == null)
 			return;
 
-		logger.info("......starting new job (⚙ " + object.getInterval() + " sec ▸ '" + object.getTarget() + "') ...");
+		logService.info("......starting new job (⚙ " + object.getInterval() + " sec ▸ '" + object.getTarget() + "') ...");
 		// create a new non persistent timer object
 		TimerConfig timerConfig = new TimerConfig();
 		timerConfig.setInfo(object);
@@ -113,7 +114,7 @@ public class JobHandler {
 		// intial delay 10 seconds
 		timer = timerService.createIntervalTimer(INITIAL_DELAY, interval * 1000, timerConfig);
 		if (timer == null) {
-			logger.warning("...failed to start new job!");
+			logService.warning("...failed to start new job!");
 		}
 
 	}
@@ -130,23 +131,25 @@ public class JobHandler {
 	@Timeout
 	protected void onTimeout(javax.ejb.Timer timer) {
 
+		// reset message log
+		logService.reset();
 		long lProfiler = System.currentTimeMillis();
 		XMLObject object = (XMLObject) timer.getInfo();
 
 		if (object == null) {
-			logger.severe("...invalid object configuration! Timer will be stopped...");
+			logService.severe("...invalid object configuration! Timer will be stopped...");
 			timer.cancel();
 			return;
 		}
 		
 		if ( object.getPattern() == null || object.getPattern().isEmpty()) {
-			logger.severe("...invalid object configuration - missing tag 'pattern'...");
+			logService.severe("...invalid object configuration - missing tag 'pattern'...");
 			timer.cancel();
 			return;
 		}
 		
 		
-		logger.info("......executing job - " + object.getTarget());
+		logService.info("......executing job - " + object.getTarget());
 
 		String target = object.getTarget();
 		if (target.toLowerCase().startsWith("http")) {
@@ -160,19 +163,19 @@ public class JobHandler {
 
 				// now try to find at least one match
 				if (m.find()) {
-					logger.info("......OK");
+					logService.info("......OK");
 					object.setStatus("OK");
 					object.setLastSuccess(new Date());
 					config.addPing();;
 					
 				} else {
-					logger.info("......FAILED - pattern not found!");
+					logService.info("......FAILED - pattern not found!");
 					object.setStatus("FAILED");
 					object.setLastFailure(new Date());
 					config.addErrors();
 				}
 			} catch (IOException e) {
-				logger.severe("FAILED to request target - " + e.getMessage());
+				logService.severe("FAILED to request target - " + e.getMessage());
 				object.setStatus("FAILED");
 				object.setLastFailure(new Date());
 				config.addErrors();
