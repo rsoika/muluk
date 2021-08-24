@@ -32,8 +32,11 @@
 			
 			<div class="container-panel" style="">
 					<p>Cluster Status:</p>
-					<h3 class="green">Availability = 95.3%</h3>
-					<h3 class="red">Total Errors = 0</h3>
+					<h3 class="green">Availability = <h:outputText value="#{monitorController.clusterAvailability}">
+							<f:convertNumber type="number" groupingUsed="true"
+								maxFractionDigits="4" minFractionDigits="1" />
+						</h:outputText> %</h3>
+					<h3 class="red">Total Errors = #{monitorController.config.clusterErrors}</h3>
 				</div>
 				
 				<div class="container-panel" style="">
@@ -47,7 +50,7 @@
 						%
 					</h3>
 					<h3 class="red">Total Errors =
-						#{monitorController.config.errors}</h3>
+						#{monitorController.config.objectErrors}</h3>
 				</div>
 
 				

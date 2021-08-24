@@ -6,6 +6,8 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
+import org.imixs.muluk.MonitorService;
+
 /**
  *
  * 
@@ -24,6 +26,7 @@ public class XMLObject implements java.io.Serializable {
 	
 	private String pattern;
 	private String status;
+	private String lastStatus;
 	private Date lastSuccess;
 	private Date lastFailure;
 	
@@ -38,7 +41,14 @@ public class XMLObject implements java.io.Serializable {
 		this.type = type;
 	}
 
+	/**
+	 * returns the type. Default ist 'web'
+	 * @return
+	 */
 	public String getType() {
+		if (type==null || type.isEmpty()) {
+			type="web";// default
+		}
 		return type;
 	}
 
@@ -80,6 +90,18 @@ public class XMLObject implements java.io.Serializable {
 
 	public void setStatus(String status) {
 		this.status = status;
+	}
+	
+
+	public String getLastStatus() {
+		if (lastStatus==null || lastStatus.isEmpty()) {
+			lastStatus=MonitorService.STATUS_OK;
+		}
+		return lastStatus;
+	}
+
+	public void setLastStatus(String lastStatus) {
+		this.lastStatus = lastStatus;
 	}
 
 	public Date getLastSuccess() {

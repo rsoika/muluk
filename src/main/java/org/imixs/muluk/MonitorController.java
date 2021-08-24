@@ -25,9 +25,7 @@ package org.imixs.muluk;
 
 import java.io.Serializable;
 import java.nio.file.AccessDeniedException;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
@@ -77,9 +75,13 @@ public class MonitorController implements Serializable {
 		return monitorService.getStarted();
 	}
 
+	/**
+	 * Returns the object availiblity
+	 * @return
+	 */
 	public double getAvailability() {
-		double pings = getConfig().getPings();
-		double errors = getConfig().getErrors();
+		double pings = getConfig().getObjectPings();
+		double errors = getConfig().getObjectErrors();
 		double total = pings + errors;
 		double result = 0;
 		if (total > 0) {
@@ -88,6 +90,21 @@ public class MonitorController implements Serializable {
 		return result;
 	}
 
+	/**
+	 * Returns the cluster availability
+	 */
+	public double getClusterAvailability() {
+		double pings = getConfig().getClusterPings();
+		double errors = getConfig().getClusterErrors();
+		double total = pings + errors;
+		double result = 0;
+		if (total > 0) {
+			result = pings / total * 100;
+		}
+		return result;
+	}
+
+	
 	/**
 	 * Returns the objects.
 	 * 

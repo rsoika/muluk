@@ -47,8 +47,10 @@ public class XMLConfig implements java.io.Serializable {
 	private XMLCluster cluster;
 	private XMLMonitor monitor;
 	private XMLMail mail;
-	private long pings = 0;
-	private long errors = 0;
+	private long objectPings = 0;
+	private long objectErrors = 0;
+	private long clusterPings = 0;
+	private long clusterErrors = 0;
 
 	public XMLConfig() {
 		super();
@@ -79,28 +81,54 @@ public class XMLConfig implements java.io.Serializable {
 		this.mail = mail;
 	}
 
-	public long getPings() {
-		return pings;
+	
+
+	public long getObjectPings() {
+		return objectPings;
 	}
 
-	public void setPings(long pings) {
-		this.pings = pings;
+	public void setObjectPings(long objectPings) {
+		this.objectPings = objectPings;
 	}
 
-	public long getErrors() {
-		return errors;
+	public long getObjectErrors() {
+		return objectErrors;
 	}
 
-	public void setErrors(long erros) {
-		this.errors = erros;
+	public void setObjectErrors(long objectErrors) {
+		this.objectErrors = objectErrors;
 	}
 
-	public void addPing() {
-		pings++;
+	public long getClusterPings() {
+		return clusterPings;
 	}
 
-	public void addErrors() {
-		errors++;
+	public void setClusterPings(long clusterPings) {
+		this.clusterPings = clusterPings;
+	}
+
+	public long getClusterErrors() {
+		return clusterErrors;
+	}
+
+	public void setClusterErrors(long clusterErrors) {
+		this.clusterErrors = clusterErrors;
+	}
+
+	public void addObjectPing() {
+		objectPings++;
+	}
+
+	public void addObjectErrors() {
+		objectErrors++;
+	}
+	
+	public void addClusterPing() {
+		clusterPings++;
+	}
+
+	public void addClusterErrors() {
+		clusterErrors++;
 	}
 
 }

@@ -32,9 +32,6 @@ import java.io.IOException;
 import java.nio.file.AccessDeniedException;
 import java.text.ParseException;
 import java.util.Date;
-import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.annotation.Resource;
 import javax.ejb.Singleton;
@@ -43,43 +40,42 @@ import javax.ejb.Timeout;
 import javax.ejb.Timer;
 import javax.ejb.TimerConfig;
 import javax.inject.Inject;
+import javax.mail.MessagingException;
 
 import org.imixs.muluk.web.WebClient;
-import org.imixs.muluk.xml.XMLAuth;
 import org.imixs.muluk.xml.XMLConfig;
 import org.imixs.muluk.xml.XMLObject;
 
 /**
- * The Job Handler starts and executes the monitor jobs.
+ * The ClusterMonitor starts and executes the cluster node timer jobs.
  * 
  * @author rsoika
  * @version 1.0
  */
 @Startup
 @Singleton
-public class JobHandler {
-	public static int DEFAULT_INTERVAL = 60;
-	public static int INITIAL_DELAY = 10000;
-
-	@Inject LogService logService;
+public class ClusterMonitor {
+	
+	@Inject
+	LogService logService;
 
 	@Resource
 	javax.ejb.TimerService timerService;
-	
+
 	private XMLConfig config;
 
 	/**
 	 * This method starts all jobs defined in the current monitor configuration.
 	 */
-	public void startAllJobs(XMLConfig config) {
-		this.config=config;
-		XMLObject[] allObjects = config.getMonitor().getObject();
+	public void start(XMLConfig config) {
+		this.config = config;
+		XMLObject[] allObjects = config.getCluster().getNode();
 		if (allObjects != null) {
 			for (XMLObject obj : allObjects) {
 				try {
-					startJob(obj);
+					initNodeTimer(obj);
 				} catch (AccessDeniedException | ParseException e) {
-					logService.severe("Failed to start job: " + e.getMessage());
+					logService.severe("Failed to start cluster monitoring: " + e.getMessage());
 					e.printStackTrace();
 				}
 			}
@@ -87,7 +83,7 @@ public class JobHandler {
 	}
 
 	/**
-	 * Create a non-persistent calendar-based timer based on a Job Object.
+	 * Create a non-persistent calendar-based timer based on a Node Object.
 	 * 
 	 * 
 	 * @param configuration
@@ -95,12 +91,13 @@ public class JobHandler {
 	 * @throws AccessDeniedException
 	 * @throws ParseException
 	 */
-	protected void startJob(XMLObject object) throws AccessDeniedException, ParseException {
+	protected void initNodeTimer(XMLObject object) throws AccessDeniedException, ParseException {
 		Timer timer = null;
 		if (object == null)
 			return;
 
-		logService.info("......starting new job (⚙ " + object.getInterval() + " sec ▸ '" + object.getTarget() + "') ...");
+		logService.info("......starting new cluster monitor (⚙ " + object.getInterval() + " sec ▸ '"
+				+ object.getTarget() + "') ...");
 		// create a new non persistent timer object
 		TimerConfig timerConfig = new TimerConfig();
 		timerConfig.setInfo(object);
@@ -109,31 +106,28 @@ public class JobHandler {
 		long interval = object.getInterval();
 		if (interval <= 0) {
 			// default interval = 60 seconds
-			interval = DEFAULT_INTERVAL;
+			interval = MonitorService.DEFAULT_INTERVAL;
 		}
 		// intial delay 10 seconds
-		timer = timerService.createIntervalTimer(INITIAL_DELAY, interval * 1000, timerConfig);
+		timer = timerService.createIntervalTimer(MonitorService.INITIAL_DELAY, interval * 1000, timerConfig);
 		if (timer == null) {
-			logService.warning("...failed to start new job!");
+			logService.warning("...failed to start new monitoring job!");
 		}
 
 	}
 
 	/**
-	 * This is the method which processes the timeout event depending on the running
-	 * timer settings. The method calls the abstract method 'process' which need to
-	 * be implemented by a subclass.
+	 * This is the method which monitors the cluster node
+	 * <p>
+	 * We are just interested in HTTP result 200
 	 * 
 	 * @param timer
-	 * @throws Exception
-	 * @throws QueryException
 	 */
 	@Timeout
 	protected void onTimeout(javax.ejb.Timer timer) {
 
 		// reset message log
 		logService.reset();
-		long lProfiler = System.currentTimeMillis();
 		XMLObject object = (XMLObject) timer.getInfo();
 
 		if (object == null) {
@@ -141,46 +135,51 @@ public class JobHandler {
 			timer.cancel();
 			return;
 		}
-		
-		if ( object.getPattern() == null || object.getPattern().isEmpty()) {
-			logService.severe("...invalid object configuration - missing tag 'pattern'...");
-			timer.cancel();
-			return;
-		}
-		
-		
-		logService.info("......executing job - " + object.getTarget());
+
+		logService.info("......monitor cluster node - " + object.getTarget());
 
 		String target = object.getTarget();
-		if (target.toLowerCase().startsWith("http")) {
-			try {
-				WebClient webClient = new WebClient(object.getAuth());
-				String result = webClient.get(target);
-				//logger.info(result);
+		// just check http status
+		try {
+			WebClient webClient = new WebClient(object.getAuth());
+			@SuppressWarnings("unused")
+			String result = webClient.get(target);
 
-				Pattern p = Pattern.compile(object.getPattern()); // the pattern to search for
-				Matcher m = p.matcher(result);
-
-				// now try to find at least one match
-				if (m.find()) {
-					logService.info("......OK");
-					object.setStatus("OK");
-					object.setLastSuccess(new Date());
-					config.addPing();;
-					
-				} else {
-					logService.info("......FAILED - pattern not found!");
-					object.setStatus("FAILED");
-					object.setLastFailure(new Date());
-					config.addErrors();
-				}
-			} catch (IOException e) {
-				logService.severe("FAILED to request target - " + e.getMessage());
+			if (webClient.getLastHTTPResult() == 200) {
+				logService.info("......OK");
+				object.setStatus("OK");
+				object.setLastSuccess(new Date());
+				config.addClusterPing();
+			} else {
+				logService.info("......FAILED - pattern not found!");
 				object.setStatus("FAILED");
 				object.setLastFailure(new Date());
-				config.addErrors();
+				config.addClusterErrors();
+			}
+		} catch (IOException e) {
+			logService.severe("FAILED to request target - " + e.getMessage());
+			object.setStatus("FAILED");
+			object.setLastFailure(new Date());
+			config.addClusterErrors();
+		}
+		
+		// if status has changed than we send an email....
+		if (!object.getStatus().equals(object.getLastStatus())) {
+			try {
+				if (MonitorService.STATUS_FAILED.equals(object.getStatus())) {
+					logService.sendMessageLog("We have a problem - Service DOWN: " + object.getTarget(),
+							config.getMail());
+				}
+				if (MonitorService.STATUS_OK.equals(object.getStatus())) {
+					logService.sendMessageLog("Problem solved - Service UP: " + object.getTarget(), config.getMail());
+				}
+				object.setLastStatus(object.getStatus());
+			} catch (MessagingException e) {
+				logService.severe("Failed to send Status Mail - " + e.getMessage());
+				e.printStackTrace();
 			}
 
 		}
+
 	}
 }

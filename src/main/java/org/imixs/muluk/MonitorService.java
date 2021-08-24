@@ -60,9 +60,12 @@ import org.imixs.muluk.xml.XMLObject;
 @Startup
 @Singleton
 public class MonitorService {
-	public static String SETUP_OK = "OK";
-	public static String MODEL_INITIALIZED = "MODEL_INITIALIZED";
 	public static int DEFAULT_INTERVAL = 60;
+	public static int INITIAL_DELAY = 10000;
+
+	public static String STATUS_FAILED = "FAILED";
+	public static String STATUS_OK = "OK";
+
 
 	private static Logger logger = Logger.getLogger(MonitorService.class.getName());
 
@@ -72,7 +75,10 @@ public class MonitorService {
 	javax.ejb.TimerService timerService;
 
 	@Inject
-	JobHandler jobHandler;
+	ObjectMonitor objectMonitor;
+	
+	@Inject
+	ClusterMonitor clusterMonitor;
 	
 	@Inject LogService logService;
 
@@ -121,9 +127,9 @@ public class MonitorService {
 		// Finally start optional schedulers
 		if (config != null) {
 
-			logService.info("......initalizing jobs...");
-			jobHandler.startAllJobs(config);
-		}
+			logService.info("......initalizing monitors...");
+			objectMonitor.start(config);
+			clusterMonitor.start(config);		}
 		
 		
 		try {

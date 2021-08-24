@@ -36,7 +36,6 @@ import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.ejb.Singleton;
-import javax.mail.Address;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Session;
@@ -158,18 +157,17 @@ public class LogService {
         // Send the message.
         try
         {
-            System.out.println("Sending...");
+            logger.info("...sending email message...");
             
             // Connect to Amazon SES using the SMTP username and password you specified above.
             transport.connect(config.getHost(), config.getUser(), config.getPassword());
         	
             // Send the email.
             transport.sendMessage(msg, msg.getAllRecipients());
-            System.out.println("Email sent!");
+            
         }
         catch (Exception ex) {
-            System.out.println("The email was not sent.");
-            System.out.println("Error message: " + ex.getMessage());
+            logger.severe("Failed to send Mail: " + ex.getMessage());
         }
         finally
         {
